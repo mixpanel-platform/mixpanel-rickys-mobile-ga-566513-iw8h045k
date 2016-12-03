@@ -140,17 +140,16 @@
             }
         };
         
-        var processResults = function(results, from) {
-          var dates = Object.keys(results[0]);
+        var processResults = function(results, from){
           //
           debugger
           var finalResults = { Conversions: {} };
-          _.each(dates, function(segment){
-            _.each(segment, function(conversion) {
-              finalResults['Conversions'][conversion] = Math.floor((results[results.length - 1][date]['count'] / results[0][date]['count']) * 10000) / 100;
-            })
-          })
-          eventGraph.MPChart('setData', finalResults);
+          // _.each(dates, function(segment){
+          //   _.each(segment, function(conversion) {
+          //     finalResults['Conversions'][conversion] = Math.floor((results[results.length - 1][date]['count'] / results[0][date]['count']) * 10000) / 100;
+          //   })
+          // })
+          // eventGraph.MPChart('setData', finalResults);
         };
         
         intervalPicker.on('change', runQuery);
