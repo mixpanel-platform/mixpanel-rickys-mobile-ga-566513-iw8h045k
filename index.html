@@ -147,7 +147,7 @@
           _.each(segments, function(segment){
             segmentData = results[segment]
             _.each(segmentData, function(value, date) {
-              tableData.push({'date': date, 'segment': segment, value: value[_.keys(date)[_.keys(date).length-1]]})
+              tableData.push({'date': date, 'segment': segment, value: value[_.keys(value)[_.keys(value).length - 1]]})
             })
           })
           eventGraph.MPChart('setData', finalResults);
