@@ -140,15 +140,16 @@
         };
         
         var processResults = function(results, from){
-          //
+          var segments = Object.keys(results);
           debugger
           var finalResults = { Conversions: {} };
-          // _.each(dates, function(segment){
-          //   _.each(segment, function(conversion) {
-          //     finalResults['Conversions'][conversion] = Math.floor((results[results.length - 1][date]['count'] / results[0][date]['count']) * 10000) / 100;
-          //   })
-          // })
-          // eventGraph.MPChart('setData', finalResults);
+          _.each(segments, function(segment){
+            segmentData = results[segment]
+            _.each(segmentData, function(date) {
+              finalResults['Conversions'][date] = Math.floor((results[results.length - 1][date]['count'] / results[0][date]['count']) * 10000) / 100;
+            })
+          })
+          eventGraph.MPChart('setData', finalResults);
         };
         
         intervalPicker.on('change', runQuery);
