@@ -125,9 +125,8 @@
           params['from'] = dateRange.from.toISOString().substring(0, 10);
           params['to'] = dateRange.to.toISOString().substring(0, 10);
           params['length'] = interval;
-          params['on'] = 'properties["$browser"]'
+          params['on'] = 'properties["$model"]'
           funnelResults = {};
-          debugger
           if(intervalSelect && eventList){
             // Add the events in the funnel here, if you have a filter on any step of the funnel use
             // { event: 'App Open', selector: 'properties["age"] == 21' }
