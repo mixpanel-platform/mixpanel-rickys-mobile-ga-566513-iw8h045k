@@ -140,13 +140,14 @@
         };
         
         var processResults = function(results, from){
+          var tableData = []
           var segments = Object.keys(results);
           debugger
           var finalResults = { Conversions: {} };
           _.each(segments, function(segment){
             segmentData = results[segment]
-            _.each(segmentData, function(date) {
-              finalResults['Conversions'][date] = Math.floor((results[results.length - 1][date]['count'] / results[0][date]['count']) * 10000) / 100;
+            _.each(segmentData, function(value, date) {
+              tableData.push({'date': date, 'segment': segment, value: value[_.keys(date)[_.keys(date).length-1]]})
             })
           })
           eventGraph.MPChart('setData', finalResults);
