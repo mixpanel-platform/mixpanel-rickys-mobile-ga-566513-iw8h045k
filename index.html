@@ -1,15 +1,161 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/css/reset.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.css">
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
   </head>
   <body class="mixpanel-platform-body">
-    <h1>Hello, World!</h1>
+    <style>
+      body {
+        color: #5c617b;
+      }
+      .events_label, .funnel-query-description {
+        font-weight: bold;
+        font-size: 15px;
+        margin-right: 8px;
+        display: inline-block;
+      }
+      .date_select.inline.block, .event_select.inline.block, .right-arrow, #add {
+        display: inline-block;
+        vertical-align: middle;
+      }
+      .event_select.inline.block {
+        max-width: 200px;
+        margin: 10px 0;
+      }
+      .dates {
+        margin-bottom: 20px;
+      }
+      .right-arrow {
+      	background: url(//cdn.mxpnl.com/cache/0a836ac387413f8cfa0ac97c5618c8bf/images/reports/arrow-dropshadow.png) no-repeat;
+      	background-position: 0 0;
+      	height: 10px;
+      	width: 10px;
+      	margin: 10px;
+      }
+      #add {
+      	background: url(https://cdn.mxpnl.com/cache/db85795727e3c42d2865a215cd85876a/images/reports/funnels3/new_row_spritesheet.png);
+      	width: 30px;
+      	height: 30px;
+      	cursor: pointer;
+      	position: relative;
+      	margin-left: 15px;
+      }
+
+    </style>
+    <div class="mixpanel-platform-section">
+      <div id="intervalSelect" style="float: left;"></div>
+      <div id="propSelect" style="float: left;"></div>
+      <div id="dateSelect" style="float: right;"></div>
+      <div style="clear: both;"></div>
+      <div id="events">
+        <div class="events_label">Funnel Steps:</div>
+        <div id="add"></div>
+      </div>
+
+      <div id="graph"></div>
+    </div>
     <script>
-      // Run queries and display results here
+      $(document).ready(function() {
+        var dateSelect  = $('#dateSelect').MPDatepicker();
+        var eventGraph  = $('#graph').MPChart({chartType: 'line'});
+        
+        var options = {
+          items: [
+            {label: '-- Select interval length in days --', value: 0},
+            {label: '1', value: 1},
+            {label: '7', value: 7},
+            {label: '30', value: 30}
+          ]
+        };
+        
+        var intervalPicker = $('#intervalSelect').MPSelect(options);
+        
+        var eventsNum = 3;
+        
+        // add events
+        var $events = $('#events');
+        var $add = $('#events').find('#add');
+        
+        function addEvent(i) {
+          if (i > 0) {
+            $('<div class="right-arrow"></div>').insertBefore($add);
+          }
+          var eventSelect = $('<div class="event_select inline block" id="' + i + '"></div>').insertBefore($add).MPEventSelect();
+        }
+        
+        function resetEvents() {
+          // clear event dropdowns
+          $('.event_select').remove();
+          $('.right-arrow').remove();
+          addEvent(0);
+        }
+  
+        $(document).ready(function() {
+          addEvent(0);
+        });
+        $('#add').on('click', function() {
+          var numEvents = $('.event_select').length;
+          addEvent(numEvents);
+        });
+
+        
+        var params = {
+          from: moment().subtract(1, 'months'),
+          to: moment(),
+          limit: 200,                             // maximum number of results to return
+          unit: 'day'
+        };
+
+        var runQuery = function() {
+          
+          var eventList = []
+          $events = $('.event_select')
+          _.each($events, function(el){
+            var eventName = $(el).val();
+            if (eventName != null) eventList.push({event: eventName})
+          })
+          
+          // var eventName = eventSelect.MPEventSelect('value'),
+          //    propName  = propSelect.MPPropertySelect('value'),
+          var dateRange = dateSelect.MPDatepicker('value'),
+              interval = intervalPicker.MPSelect('value');
+          
+          params['from'] = dateRange.from.toISOString().substring(0, 10);
+          params['to'] = dateRange.to.toISOString().substring(0, 10);
+          params['length'] = interval;
+          params['on'] = 'properties["$browser"]'
+          funnelResults = {};
+          debugger
+          if(intervalSelect && eventList){
+            // Add the events in the funnel here, if you have a filter on any step of the funnel use
+            // { event: 'App Open', selector: 'properties["age"] == 21' }
+            eventList.push(params);
+            MP.api.funnel.apply(MP.api, eventList).done(function(results) {
+                console.log(results);
+                processResults(results, params['from']);
+                //eventTable.MPTable('setData', results);
+              });
+            }
+        };
+        
+        var processResults = function(results, from) {
+          var dates = Object.keys(results[0]);
+          //
+          debugger
+          var finalResults = { Conversions: {} };
+          _.each(dates, function(segment){
+            _.each(segment, function(conversion) {
+              finalResults['Conversions'][conversion] = Math.floor((results[results.length - 1][date]['count'] / results[0][date]['count']) * 10000) / 100;
+            })
+          })
+          eventGraph.MPChart('setData', finalResults);
+        };
+        
+        intervalPicker.on('change', runQuery);
+        dateSelect.on('change', runQuery);
+      });
     </script>
   </body>
 </html>
