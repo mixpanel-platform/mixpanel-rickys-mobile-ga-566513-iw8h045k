@@ -4,6 +4,8 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/css/reset.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.css">
     <script src="https://cdn.mxpnl.com/libs/mixpanel-platform/build/mixpanel-platform.v0.latest.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
   </head>
   <body class="mixpanel-platform-body">
     <style>
@@ -54,13 +56,19 @@
         <div id="add"></div>
       </div>
 
-      <div id="graph"></div>
+       <table id="table" class="display" width="100%"></table>
     </div>
     <script>
       $(document).ready(function() {
         var dateSelect  = $('#dateSelect').MPDatepicker();
-        var eventGraph  = $('#graph').MPChart({chartType: 'line'});
-        
+        var table = $('#table').DataTable( {
+            columns: [
+                { title: "Date" , data: 'date' },
+                { title: "Segment", data: 'segment' },
+                { title: "Conversion", data: 'conversion' },
+              ]
+          });
+          
         var options = {
           items: [
             {label: '-- Select interval length in days --', value: 0},
@@ -140,6 +148,7 @@
         };
         
         var processResults = function(results, from){
+          table.clear()
           var tableData = []
           var segments = Object.keys(results);
           debugger
@@ -147,10 +156,10 @@
           _.each(segments, function(segment){
             segmentData = results[segment]
             _.each(segmentData, function(value, date) {
-              tableData.push({'date': date, 'segment': segment, value: value[_.keys(value)[_.keys(value).length - 1]].overall_conv_ratio})
+              table.row.add({'date': date, 'segment': segment, value: value[_.keys(value)[_.keys(value).length - 1]].overall_conv_ratio})
             })
           })
-          eventGraph.MPChart('setData', finalResults);
+           table.draw();
         };
         
         intervalPicker.on('change', runQuery);
