@@ -147,7 +147,7 @@
           _.each(segments, function(segment){
             segmentData = results[segment]
             _.each(segmentData, function(value, date) {
-              tableData.push({'date': date, 'segment': segment, value: value[_.keys(value)[_.keys(value).length - 1]]})
+              tableData.push({'date': date, 'segment': segment, value: value[_.keys(value)[_.keys(value).length - 1]].overall_conv_ratio})
             })
           })
           eventGraph.MPChart('setData', finalResults);
